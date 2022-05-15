@@ -10,12 +10,16 @@ int bands = 512;
 float[] spectrum = new float[bands];
 float[][] last_spectrums = new float[10][bands];
 color cur_bg_color = color(37, 150, 100);
+int lastHue = 0;
 
 void setup() {
   size(1024, 1024);
-  background(37, 150, 100);
+  colorMode(HSB);
+  background(0, 0, 55);
+  cur_bg_color = color(0, 0, 55);
   strokeWeight(3);
   frameRate(24);
+  fill(random(255), 100, 100);
     
   // Create an Input stream which is routed into the Amplitude analyzer
   fft = new FFT(this, bands);
@@ -47,9 +51,11 @@ void draw_partial_spectrum(float[] partial_spectrum, int x, int y, float radius_
   float r1 = local_peak * radius_factor / 2 + 5;
 
   for(int i = 0; i < partial_spectrum.length; i+=2){
-    stroke(random(255), random(40), random(40));
-    
-    float r2 = r1 + height * partial_spectrum[i/2] * 1;
+    //stroke(random(255), random(40), random(40));
+    if(i == 0)
+      continue;
+    stroke(i, 100, 400);
+    float r2 = r1 + height * partial_spectrum[i/2] * 2;
     float theta = i*4;
     float x1 = r1 * cos(theta);
     float y1 = r1 * sin(theta);
@@ -66,8 +72,10 @@ void draw() {
   fft.analyze(spectrum);
   
   float peak = max(spectrum) * 100;
-  if(peak > 1.2)
-    cur_bg_color = color(random(30), random(150), random(65));
+  if(peak > 1.2){
+    cur_bg_color = color(80+(lastHue % 80), 30, 100);
+    lastHue += 10;
+  }
   background(cur_bg_color);
   
   float[] bass_subset = subset(spectrum, 0, 128);
